@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.env
+.env.*
+.DS_Store
+.vscode/
+.idea/
+*.log
+
+# Docker
+docker-data/
+*.tar
+
+# Python
+venv/
+.env/
