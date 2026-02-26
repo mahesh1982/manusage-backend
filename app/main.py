@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from .logging_config import setup_logging
 from .config import Settings
+from .middleware import LoggingMiddleware
 
 # Initialize logging
 setup_logging()
@@ -13,6 +14,7 @@ app = FastAPI(
     version="0.0.1",
     description="Minimal deployable ManusAge backend"
 )
+app.add_middleware(LoggingMiddleware)
 
 @app.get("/health")
 def health_check():
@@ -21,6 +23,16 @@ def health_check():
         "service": "ManusAge",
         "environment": settings.environment
     }
+
+@app.get("/version")
+def version():
+    return {
+        "service": "ManusAge",
+        "version": settings.version,
+        "environment": settings.environment,
+        "build_time": settings.build_time
+    }
+
 
 
 #"manusage-backend.redplant-2a81f7c8.eastus.azurecontainerapps.io"
