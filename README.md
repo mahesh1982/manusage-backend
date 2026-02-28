@@ -1,6 +1,4 @@
-Here is a polished, recruiter‑ready README.md for your ManusAge project.
-It is aligned with the architecture in MANUSAGE_SPEC.md, written in a professional, portfolio‑grade tone, and structured to impress hiring managers, staff engineers, and GenAI teams.
----
+
 ManusAge — GenAI System for Ink Age Estimation &amp; Document Intelligence
 ManusAge is a production‑grade GenAI system that performs ink age estimation, document intelligence, and context‑grounded reasoning using a hybrid of RAG, LLM orchestration, multimodal processing, and agentic workflows.
 It is designed as an enterprise‑ready reference architecture for modern GenAI engineering.
