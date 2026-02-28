@@ -1,6 +1,8 @@
 from fastapi import APIRouter
 from app.rag.pipeline import RAGPipeline
 import os
+from app.config import settings
+
 
 router = APIRouter()
 
@@ -9,7 +11,10 @@ PG_DSN = (
     f"@{os.getenv('POSTGRES_HOST')}:{os.getenv('POSTGRES_PORT')}/{os.getenv('POSTGRES_DB')}"
 )
 
-pipeline = RAGPipeline(pg_dsn=PG_DSN)
+pipeline = RAGPipeline(
+    pg_dsn=PG_DSN,
+    mongo_uri=settings.MONGO_URI
+)
 
 
 @router.post("/ingest")

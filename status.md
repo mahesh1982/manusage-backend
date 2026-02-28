@@ -1,63 +1,58 @@
-A status.md file is a great idea for ManusAge. It gives you a clean, chronological log of what you completed each day, what’s pending, and what’s next. It also lets me “catch up” instantly whenever you return, without you needing to re‑explain anything.
-Here is a clean, professional STATUS.md template tailored to your workflow, your micro‑step style, and the ManusAge architecture.
----
-STATUS.md — ManusAge Development Log
-Project: ManusAge — GenAI System for Ink Age Estimation
-Owner: Maheswara Reddy
-Purpose: Daily engineering log for continuity, planning, and assistant catch‑up.
----
-📅 Daily Log
-2026‑02‑27
-Completed
-Database migrations fixed and executed successfully.
-Prompt seeding script updated and executed.
-Environment variables corrected for macOS PostgreSQL.
-RAG pipeline import issues resolved (LangChain modular imports).
-EmbeddingModel class aligned with retriever.
-Router updated to pass DSN into RAGPipeline.
-GPT‑4o‑mini selected as primary LLM.
-OpenAI API key integration planned (via .env).
-In Progress
-Fixing LLM initialization with GPT‑4o‑mini.
-Starting FastAPI server cleanly with OpenAI integration.
-Next Steps
-Finalize pipeline.py with ChatOpenAI + GPT‑4o‑mini.
-Start server and test ingestion + query.
-Commit and push to GitHub.
----
-🧩 Current System State
-Backend
-FastAPI structure complete.
-RAG pipeline wiring in progress.
-Agents folder scaffolded.
-Prompt governance implemented.
-Database
-PostgreSQL running locally.
-pgvector enabled.
-prompt_versions and documents tables created.
-LLM
-GPT‑4o‑mini chosen.
-API key to be loaded via .env.
-Memory Architecture
-Postgres (vector store) active.
-ChromaDB + MongoDB planned.
----
-🎯 Short‑Term Goals (Next 3 Days)
-Complete GPT‑4o‑mini integration.
-Run first successful RAG query.
-Add summarizer agent.
-Add evaluation agent (RAGAS + LLM‑judge).
-Push stable backend to GitHub.
----
-🚀 Long‑Term Goals
-Add multimodal ingestion (images, audio).
-Integrate Whisper + TTS.
-Add LangGraph workflows.
-Add observability (OpenTelemetry, Phoenix).
-Deploy via Docker + K8s.
----
-📝 Notes
-Keep .env out of GitHub.
-Maintain micro‑step workflow.
-Commit daily progress.
-Use this file as the single source of truth for project continuity.
+# ManusAge Backend – STATUS
+
+**Last updated: Mar-02-2026**
+
+## High-level status
+
+- ✅ FastAPI app structure in place
+- ✅ PostgreSQL (pgvector) wired for RAG
+- ✅ `.env` configured with Postgres, MongoDB Atlas, and PG_DSN
+- ✅ `MongoConnection` and `MongoEvaluationStore` separated and ready
+- ✅ `RAGPipeline` updated to accept `mongo_uri`
+- ⏳ Automatic evaluation (LLM-as-judge + RAGAS) **designed but not fully wired**
+- ⏳ No Azure deployment yet (intentionally deferred)
+
+## What is working now
+
+- FastAPI app starts successfully (after Python/env alignment).
+- Configuration is loaded via `Settings` from `.env`.
+- PostgreSQL connection string (`PG_DSN`) is defined and used.
+- MongoDB Atlas URI (`MONGO_URI`) is defined and accessible.
+- `MongoConnection` provides a clean DB handle.
+- `MongoEvaluationStore` is ready to store evaluation documents (not yet called from pipeline).
+
+## What is partially implemented
+
+- `RAGPipeline`:
+  - Accepts `mongo_uri` and constructs `MongoEvaluationStore`.
+  - Still needs:
+    - An internal `_evaluate()` method.
+    - Integration of LLM-as-judge.
+    - Integration of RAGAS (even if minimal at first).
+    - Call to `evaluation_store.save(...)` after each answer.
+
+## What is NOT done yet (deliberately)
+
+- No Azure deployment (App Service / AKS) configured yet.
+- No CI/CD pipeline (GitHub Actions) set up yet.
+- No analytics dashboard reading from MongoDB yet.
+- No frontend wiring to display evaluation scores yet.
+
+## Next concrete steps (backend only)
+
+1. Add `_evaluate()` method inside `RAGPipeline`:
+   - Accepts `question`, `answer`, `docs`.
+   - Builds `EvaluationRecord`.
+   - Calls `evaluation_store.save(record)`.
+   - Returns a small dict with `judge_score`, `ragas_scores`, `sources`.
+
+2. Modify `run()` in `RAGPipeline` to:
+   - Call `_evaluate()` after LLM answer.
+   - Return `answer + evaluation` to the API layer.
+
+3. Add or refine FastAPI response model to include:
+   - `answer`
+   - `sources`
+   - `judge_score`
+   - `ragas_scores`
+>>>>>>> cb5194a (Add STATUS.md, MANUSAGE_SPEC.md, Mongo integration, config updates)

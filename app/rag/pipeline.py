@@ -10,12 +10,14 @@ load_dotenv()
 
 from .retriever import RAGRetriever
 from app.prompt.prompt_loader import PromptLoader
+from app.evaluation.evaluation_store import MongoEvaluationStore
 
 
 class RAGPipeline:
     def __init__(
         self,
         pg_dsn: str,
+        mongo_uri: str,
         data_dir: str = "data/documents",
         embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2",
         llm_model: str = "gpt-4o-mini"
@@ -35,6 +37,11 @@ class RAGPipeline:
 
         # FIXED: removed extra parenthesis
         self.prompt_loader = PromptLoader(pg_dsn)
+        # MongoDB evaluation store (for saving evaluation results later)
+        self.evaluation_store = MongoEvaluationStore(mongo_uri)
+        print("Mongo connected:", self.evaluation_store.db.name)
+
+
 
     async def initialize(self):
         await self.retriever.initialize()
