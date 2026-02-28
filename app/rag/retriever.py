@@ -1,5 +1,9 @@
 from typing import List
-from langchain.schema import Document
+from langchain_core.documents import Document
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, SystemMessage
 
 from .document_loader import DocumentLoader
 from .embeddings import EmbeddingModel

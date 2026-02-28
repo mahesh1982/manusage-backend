@@ -1,7 +1,12 @@
 from typing import List
-from langchain.schema import Document
-from langchain.chat_models import ChatOpenAI
-from langchain.prompts import PromptTemplate
+from langchain_core.documents import Document
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, SystemMessage
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 from .retriever import RAGRetriever
 from app.prompt.prompt_loader import PromptLoader
@@ -21,7 +26,12 @@ class RAGPipeline:
             embedding_model=embedding_model
         )
 
-        self.llm = ChatOpenAI(model=llm_model, temperature=0)
+        self.llm = ChatOpenAI(
+                                model="gpt-4o-mini",
+                                temperature=0,
+                                api_key=os.getenv("OPENAI_API_KEY")
+                            )
+
 
         # FIXED: removed extra parenthesis
         self.prompt_loader = PromptLoader(pg_dsn)

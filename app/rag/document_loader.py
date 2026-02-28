@@ -1,7 +1,11 @@
 import os
 from typing import List
 from langchain_community.document_loaders import TextLoader, PyPDFLoader
-from langchain.schema import Document
+from langchain_core.documents import Document
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, SystemMessage
 
 class DocumentLoader:
     def __init__(self, data_dir: str = "data/documents"):

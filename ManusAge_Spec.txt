@@ -1,0 +1,221 @@
+Here is a clean, production‑grade MANUSAGE_SPEC.md you can drop directly into your repo.
+It reflects everything you have built so far, plus the full roadmap and architecture we agreed on.
+It is written in a recruiter‑friendly, engineering‑focused style.
+---
+MANUSAGE_SPEC.md
+ManusAge — A GenAI System for Ink Age Estimation &amp; Document Intelligence
+ManusAge is a full‑stack GenAI system designed to analyze handwritten or printed documents, estimate ink age, and provide contextual reasoning using a hybrid of RAG, LLM orchestration, multimodal processing, and agentic workflows. The project is built as a portfolio‑grade, production‑ready architecture demonstrating modern GenAI engineering practices.
+---
+1. System Goals
+ManusAge aims to:
+Estimate ink age from scanned documents using multimodal analysis.
+Provide factual, context‑grounded answers using a RAG pipeline.
+Support multimodal orchestration (text, audio, image).
+Enable agentic workflows for document analysis, summarization, and evaluation.
+Demonstrate enterprise‑grade architecture with observability, evaluation, and prompt governance.
+Serve as a reference implementation for GenAI engineering best practices.
+---
+2. High‑Level Architecture
+Core Components
+FastAPI backend (Python 3.10)
+PostgreSQL + pgvector (primary vector store)
+ChromaDB (short‑term/session memory)
+MongoDB Atlas (long‑term metadata memory)
+LangChain / LangGraph / Smolagents (agentic orchestration)
+OpenAI GPT‑4o‑mini (primary LLM)
+SentenceTransformers (embeddings)
+MCP (Model Context Protocol) for tool orchestration
+A2A (Agent‑to‑Agent) for multi‑agent workflows
+Data Flow
+User uploads or queries.
+Documents are ingested → chunked → embedded → stored in Postgres.
+Query is embedded → nearest neighbors retrieved.
+Prompt loader fetches active system prompt from Postgres.
+LLM generates grounded response.
+Agents optionally perform deeper analysis (summaries, extraction, multimodal reasoning).
+---
+3. Backend Folder Structure
+manusage-backend/
+│
+├── app/
+│   ├── main.py
+│   ├── rag/
+│   │   ├── router.py
+│   │   ├── pipeline.py
+│   │   ├── retriever.py
+│   │   ├── embeddings.py
+│   │   ├── vector_store.py
+│   │   └── loader.py
+│   ├── prompt/
+│   │   ├── seed_prompts.py
+│   │   └── prompt_loader.py
+│   ├── agents/
+│   │   ├── summarizer_agent.py
+│   │   ├── evaluator_agent.py
+│   │   └── multimodal_agent.py
+│   └── utils/
+│       └── logger.py
+│
+├── db/
+│   ├── migrations/
+│   │   └── 001_init.sql
+│   └── run_migrations.py
+│
+├── Dockerfile
+├── requirements.txt
+├── README.md
+└── MANUSAGE_SPEC.md
+
+---
+4. Database Design
+PostgreSQL (Primary Vector Store)
+Table: prompt_versions
+Column	Type	Description
+id	SERIAL PK	Unique ID
+prompt_name	TEXT	Name of the prompt
+version	INT	Version number
+content	TEXT	Prompt text
+is_active	BOOLEAN	Active version flag
+created_at	TIMESTAMP	Timestamp
+Table: documents
+Column	Type	Description
+id	SERIAL PK	Unique ID
+content	TEXT	Raw text
+embedding	VECTOR	pgvector embedding
+metadata	JSONB	Metadata
+created_at	TIMESTAMP	Timestamp
+ChromaDB
+Stores short‑term memory for conversational continuity.
+MongoDB Atlas
+Stores long‑term metadata, document summaries, and agent outputs.
+---
+5. RAG Pipeline Design
+Components
+DocumentLoader → loads and chunks documents.
+EmbeddingModel → SentenceTransformers.
+VectorStore → Postgres + pgvector.
+Retriever → similarity search.
+PromptLoader → fetches active system prompt.
+LLM → GPT‑4o‑mini via ChatOpenAI.
+Pipeline → orchestrates retrieval + generation.
+Pipeline Steps
+Load active prompt from Postgres.
+Embed query.
+Retrieve top‑k documents.
+Construct final prompt.
+Call GPT‑4o‑mini.
+Return answer + retrieved context.
+---
+6. Prompt Governance
+Single Table Strategy
+All prompts stored in:
+prompt_versions
+
+Fields:
+prompt_name
+version
+content
+is_active
+Rules
+Only one active version per prompt.
+New versions inserted with is_active = FALSE.
+Activation handled via update query.
+Seed Script
+seed_prompts.py inserts:
+rag_system_prompt v1
+
+---
+7. Agentic Orchestration
+Agents Included
+Summarizer Agent
+Summarizes long documents or research papers.
+Evaluator Agent
+Performs RAG evaluation using:
+RAGAS
+LLM‑judge scoring
+Multimodal Agent
+Handles:
+text → audio
+audio → text
+image → text (future)
+Agent Frameworks
+LangGraph for stateful workflows.
+Smolagents for lightweight tools.
+MCP for tool execution.
+A2A for multi‑agent collaboration.
+---
+8. Evaluation &amp; Observability
+Evaluation
+RAGAS metrics:
+Faithfulness
+Answer Relevance
+Context Precision
+Context Recall
+LLM‑judge scoring for:
+Coherence
+Groundedness
+Completeness
+Observability
+Logging via custom logger.
+Tracing (future):
+OpenTelemetry
+LangSmith
+Phoenix
+---
+9. Multimodal Roadmap
+Phase 1 (Current)
+Text ingestion
+Text RAG
+GPT‑4o‑mini integration
+Phase 2
+Audio transcription (Whisper)
+Text‑to‑speech (OpenAI TTS)
+Phase 3
+Image ingestion (scanned documents)
+Vision analysis (GPT‑4o‑mini vision)
+Phase 4
+Ink age estimation model (custom fine‑tuned model)
+---
+10. Deployment Plan
+Local Development
+Uvicorn + FastAPI
+Local Postgres
+Local ChromaDB
+Production
+Dockerized backend
+Postgres on managed cloud (RDS / Cloud SQL)
+MongoDB Atlas
+ChromaDB server mode
+K8s deployment (HPA + autoscaling)
+CI/CD (GitHub Actions)
+---
+11. API Endpoints
+POST /rag/ingest
+Loads and embeds documents.
+POST /rag/query
+Runs full RAG pipeline.
+POST /agents/summarize
+Summarizes long text.
+POST /agents/evaluate
+Runs RAG evaluation.
+POST /agents/multimodal
+Handles audio/image workflows.
+---
+12. Current Status (as of Feb 27, 2026)
+Folder structure complete
+Migrations working
+Prompt seeding working
+GPT‑4o‑mini integration ready
+RAG pipeline wiring in progress
+FastAPI server starting successfully
+Next step: ingestion + query testing
+---
+13. Next Steps
+Finalize pipeline.py with GPT‑4o‑mini.
+Test ingestion with sample.txt.
+Test RAG query end‑to‑end.
+Add agent endpoints.
+Add evaluation module.
+Add observability hooks.
+Deploy to GitHub + containerize.
+---

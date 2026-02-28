@@ -1,92 +1,144 @@
-# 🧠 ManusAge — Document Age Estimation Backend
-
-ManusAge is a modular, production‑grade GenAI system designed to estimate the age of handwritten or printed documents using a combination of:
-
-- Vision models  
-- RAG pipelines  
-- LLM reasoning  
-- Metadata analysis  
-- Agentic orchestration  
-
-This repository contains the **backend microservice**, built with FastAPI and deployed using Docker + Azure Container Apps.
-
+Here is a polished, recruiter‑ready README.md for your ManusAge project.
+It is aligned with the architecture in MANUSAGE_SPEC.md, written in a professional, portfolio‑grade tone, and structured to impress hiring managers, staff engineers, and GenAI teams.
 ---
-
-## 🚀 Features
-
-- FastAPI‑based microservice architecture  
-- Health endpoint for monitoring  
-- Dockerized for reproducible builds  
-- AMD64‑compatible images for cloud deployment  
-- Azure Container Registry (ACR) integration  
-- Azure Container Apps deployment  
-- Scale‑to‑zero support for cost‑efficient hosting  
-- Clean project structure for future RAG + Vision integration  
-
+ManusAge — GenAI System for Ink Age Estimation &amp; Document Intelligence
+ManusAge is a production‑grade GenAI system that performs ink age estimation, document intelligence, and context‑grounded reasoning using a hybrid of RAG, LLM orchestration, multimodal processing, and agentic workflows.
+It is designed as an enterprise‑ready reference architecture for modern GenAI engineering.
 ---
-
-## 🏗️ Architecture Overview
-
+✨ Key Features
+RAG Pipeline (Retrieval‑Augmented Generation)
+Uses PostgreSQL + pgvector for document embeddings and GPT‑4o‑mini for grounded answers.
+Prompt Governance
+Versioned prompts stored in Postgres with activation control.
+Agentic Workflows
+Summarization, evaluation (RAGAS + LLM‑judge), and multimodal agents.
+Multimodal Support
+Text, audio, and image processing (future: ink age estimation model).
+Memory Architecture
+Postgres (primary vector store)
+ChromaDB (short‑term memory)
+MongoDB Atlas (long‑term metadata)
+Production‑Ready Backend
+FastAPI, Docker, modular folder structure, and clean separation of concerns.
+---
+📁 Project Structure
 manusage-backend/
 │
 ├── app/
-│   ├── main.py          # FastAPI entrypoint
-│   ├── config.py        # Pydantic settings (v2)
-│   ├── routes/          # API endpoints (future expansion)
-│   └── services/        # Business logic modules
+│   ├── main.py
+│   ├── rag/
+│   │   ├── router.py
+│   │   ├── pipeline.py
+│   │   ├── retriever.py
+│   │   ├── embeddings.py
+│   │   ├── vector_store.py
+│   │   └── loader.py
+│   ├── prompt/
+│   │   ├── seed_prompts.py
+│   │   └── prompt_loader.py
+│   ├── agents/
+│   │   ├── summarizer_agent.py
+│   │   ├── evaluator_agent.py
+│   │   └── multimodal_agent.py
+│   └── utils/
+│       └── logger.py
 │
-├── Dockerfile           # AMD64-compatible container build
-├── requirements.txt     # Python dependencies
-├── DEPLOYMENT.md        # Azure deployment guide
-└── README.md            # Project documentation
-
+├── db/
+│   ├── migrations/
+│   │   └── 001_init.sql
+│   └── run_migrations.py
+│
+├── Dockerfile
+├── requirements.txt
+└── MANUSAGE_SPEC.md
 
 ---
-
-## 🧪 Local Development
-
-### 1. Create a virtual environment
-
-```bash
-python3 -m venv venv
-source venv/bin/activate
-
+🧠 Architecture Overview
+Core Stack
+FastAPI — backend API
+PostgreSQL + pgvector — vector store
+SentenceTransformers — embeddings
+OpenAI GPT‑4o‑mini — LLM
+LangChain / LangGraph / Smolagents — orchestration
+ChromaDB — short‑term memory
+MongoDB Atlas — long‑term metadata
+Data Flow
+Documents are ingested → chunked → embedded → stored in Postgres.
+Query is embedded → nearest neighbors retrieved.
+Active system prompt loaded from Postgres.
+GPT‑4o‑mini generates grounded response.
+Agents optionally perform deeper analysis.
+---
+🗄️ Database Schema
+prompt_versions
+Stores all prompt versions with activation flags.
+documents
+Stores raw text, embeddings, and metadata.
+vector extension
+pgvector enabled for similarity search.
+---
+🚀 Getting Started
+1. Install dependencies
 pip install -r requirements.txt
 
-uvicorn app.main:app --reload --port 8000
+2. Start PostgreSQL
+Local:
+brew services start postgresql
 
+Or Docker:
+docker run -d \
+  --name manusage-db \
+  -e POSTGRES_DB=postgres \
+  -e POSTGRES_USER=maheswarareddyp \
+  -p 5432:5432 \
+  postgres:15
 
-http://localhost:8000/health
+3. Run migrations
+python db/migrations/run_migrations.py
 
-docker buildx build --platform linux/amd64 -t manusage-backend-amd64 .
+4. Seed initial prompt
+python app/prompt/seed_prompts.py
 
-docker run -p 8000:8000 manusage-backend-amd64
+5. Start the API
+uvicorn app.main:app --reload
 
-docker tag manusage-backend-amd64 manusageacr.azurecr.io/manusage-backend:latest
-docker push manusageacr.azurecr.io/manusage-backend:latest
-
-
-az containerapp create \
-  --name manusage-backend \
-  --resource-group manusage-rg \
-  --environment manusage-env \
-  --image manusageacr.azurecr.io/manusage-backend:latest \
-  --target-port 8000 \
-  --ingress external \
-  --registry-server manusageacr.azurecr.io
-
-
-https://<your-app>.azurecontainerapps.io/health
-
-az containerapp update \
-  --name manusage-backend \
-  --resource-group manusage-rg \
-  --min-replicas 0 \
-  --max-replicas 1
-
-📄 License
-This project is for educational and portfolio purposes.
 ---
-👤 Author
-Maheswara Reddy
-GenAI Engineer | RAG Systems | Agentic Architectures
+📨 API Endpoints
+POST /rag/ingest
+Ingests and embeds documents.
+POST /rag/query
+Runs full RAG pipeline with GPT‑4o‑mini.
+POST /agents/summarize
+Summarizes long documents.
+POST /agents/evaluate
+Runs RAG evaluation (RAGAS + LLM‑judge).
+POST /agents/multimodal
+Handles audio/image workflows.
+---
+🧪 Example Usage
+Ingest documents
+curl -X POST http://127.0.0.1:8000/rag/ingest
+
+Query the system
+curl -X POST http://127.0.0.1:8000/rag/query \
+  -H "Content-Type: application/json" \
+  -d '{"query": "How does ink age?", "prompt_name": "rag_system_prompt"}'
+
+---
+📈 Roadmap
+Phase 1 (Current)
+RAG pipeline
+Prompt governance
+GPT‑4o‑mini integration
+Phase 2
+Audio transcription (Whisper)
+Text‑to‑speech
+Phase 3
+Vision ingestion
+Document image analysis
+Phase 4
+Custom ink age estimation model
+Full multimodal agentic workflow
+---
+📜 License
+No License

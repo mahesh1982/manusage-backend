@@ -2,6 +2,9 @@ from fastapi import FastAPI
 from .logging_config import setup_logging
 from .config import Settings
 from .middleware import LoggingMiddleware
+from app.rag.router import router as rag_router
+from dotenv import load_dotenv
+load_dotenv()
 
 # Initialize logging
 setup_logging()
@@ -15,6 +18,8 @@ app = FastAPI(
     description="Minimal deployable ManusAge backend"
 )
 app.add_middleware(LoggingMiddleware)
+app.include_router(rag_router, prefix="/rag")
+
 
 @app.get("/health")
 def health_check():
