@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from .logging_config import setup_logging
 from .config import Settings
 from .middleware import LoggingMiddleware
-from app.rag.router import router as rag_router
+from app.router import router as rag_router
 from dotenv import load_dotenv
 load_dotenv()
 

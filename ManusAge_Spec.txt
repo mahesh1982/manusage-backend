@@ -85,7 +85,26 @@ ManusAge is a GenAI system designed to estimate the age of handwritten ink and p
   - `metadata`
 - ChromaDB:
   - Session memory
-
+3.3 Architecture Decisions (Updated Mar‑05‑2026)
+1. Unified Router Structure
+The backend now uses a single global router located at app/router.py.
+	◦ Removed the previous `app/rg/router.py to avoid fragmented routing.
+	◦ All RAG endpoints (/rag/query, /rag/ingest) are mounted through this unified router.
+	◦ This ensures a single API entrypoint and simplifies future agent and workflow integration.
+2. Typed API Response Model
+Introduced the `RAGResponsePydantic model to enforce consistent API output.
+	◦ Fields include: answer, sources, judge_score, ragas_scores, drift, `latencyms, `throughput
+	◦ /rag/query now declares `responsemodel=RAGResponse for validation and OpenAPI documentation.
+	◦ This aligns with the system’s requirement for transparent, evaluable responses.
+3. Sync/Async Boundary Handling
+The FastAPI endpoints remain synchronous (def), while the RAG pipeline is asynchronous (async def).
+	◦ Endpoints call the async pipeline using `asyncio.run) to bridge the sync/async boundary.
+	◦ This avoids event-loop conflicts and keeps the API surface simple for clients.
+4. Corrected FastAPI Entrypoint
+Updated main.py to import the unified router using:
+from app.router import router
+	◦ Ensures the correct router is loaded.
+	◦ Prevents import errors after removing the old nested router.
 ---
 
 ## 4. API Endpoints
@@ -93,18 +112,24 @@ ManusAge is a GenAI system designed to estimate the age of handwritten ink and p
 ### 4.1 `/rag/query`
 - Input: `{ "query": "..." }`
 - Output:
-  ```json
   {
-    "answer": "...",
-    "sources": ["..."],
-    "judge_score": { "score": 0.0, "justification": "..." },
-    "ragas_scores": {
-      "faithfulness": 0.0,
-      "answer_relevance": 0.0,
-      "context_precision": 0.0,
-      "context_recall": 0.0
-    }
-  }
+  "answer": "string",
+  "sources": ["string"],
+  "judge_score": 0.0,
+  "ragas_scores": {
+    "faithfulness": 0.0,
+    "answer_relevance": 0.0,
+    "context_precision": 0.0,
+    "context_recall": 0.0
+  },
+  "drift": {
+    "embedding_shift": 0.0,
+    "semantic_shift": 0.0
+  },
+  "latency_ms": 0.0,
+  "throughput": 0.0
+}
+
 
 4.2 `/rag/ingest`
 Ingests documents into PostgreSQL vector store.
@@ -115,16 +140,28 @@ Collection: `evaluations`
   "question": "string",
   "answer": "string",
   "sources": ["string"],
+
   "judge_score": 0.0,
   "judge_justification": "string",
+
   "ragas_scores": {
     "faithfulness": 0.0,
     "answer_relevance": 0.0,
     "context_precision": 0.0,
     "context_recall": 0.0
   },
+
+  "drift": {
+    "embedding_shift": 0.0,
+    "semantic_shift": 0.0
+  },
+
+  "latency_ms": 0.0,
+  "throughput": 0.0,
+
   "created_at": "datetime"
 }
+Drift metrics track how the system’s behavior changes over time. Embedding drift shows when the meaning of stored vectors begins to shift, and semantic drift shows when the model’s answers start diverging from earlier patterns. These signals help identify when re‑embedding, prompt updates, or model adjustments are needed. Performance metrics such as latency and throughput capture how quickly the system responds and how well it handles load, which supports observability and capacity planning.
 
 ---
 6. Roadmap

@@ -11,6 +11,11 @@
 - ✅ `RAGPipeline` updated to accept `mongo_uri`
 - ⏳ Automatic evaluation (LLM-as-judge + RAGAS) **designed but not fully wired**
 - ⏳ No Azure deployment yet (intentionally deferred)
+Mar-5-2026
+- ✅ API response model added and integrated
+- ✅ Router cleanup completed (single global router)
+- ✅ main.py updated to use correct router import
+
 
 ## What is working now
 
@@ -20,6 +25,12 @@
 - MongoDB Atlas URI (`MONGO_URI`) is defined and accessible.
 - `MongoConnection` provides a clean DB handle.
 - `MongoEvaluationStore` is ready to store evaluation documents (not yet called from pipeline).
+Mar-5-2026
+- FastAPI router structure cleaned and consolidated under `app/router.py`.
+- `RAGResponse` Pydantic model added for consistent API output.
+- `/rag/query` endpoint updated to call async pipeline via `asyncio.run()`.
+- `main.py` updated to import the correct router (`from app.router import router`).
+
 
 ## What is partially implemented
 

@@ -65,8 +65,62 @@ class RAGPipeline:
 
         # LLM call
         response = self.llm.invoke(final_prompt)
+        answer = response.content
 
-        return response.content
+        # Call evaluation placeholder
+        evaluation = self._evaluate(query, answer, docs)
+
+        # Return combined output (answer + evaluation)
+        return {
+            "answer": answer,
+            "sources": evaluation["sources"],
+            "judge_score": evaluation["judge_score"],
+            "ragas_scores": evaluation["ragas_scores"],
+            "drift": evaluation["drift"],
+            "latency_ms": evaluation["latency_ms"],
+            "throughput": evaluation["throughput"]
+        }
 
     async def close(self):
         await self.retriever.close()
+        
+    # -------------------------------------------------------------
+    # Evaluation placeholder
+    # This will later:
+    # - Run LLM-as-judge
+    # - Compute RAGAS metrics
+    # - Detect drift (data / concept / prediction)
+    # - Measure latency / throughput
+    # - Save results to MongoEvaluationStore
+    # For now, it only returns a structured placeholder.
+    # -------------------------------------------------------------
+    def _evaluate(self, question: str, answer: str, docs: List[Document]):
+        # Extract sources from retrieved documents
+        sources = []
+        for d in docs or []:
+            if hasattr(d, "metadata"):
+                src = d.metadata.get("source")
+                if src:
+                    sources.append(src)
+
+        # Placeholder evaluation structure
+        evaluation = {
+            "judge_score": None,
+            "ragas_scores": {
+                "faithfulness": None,
+                "answer_relevance": None,
+                "context_precision": None,
+                "context_recall": None
+            },
+            "drift": {
+                "data_drift": None,
+                "concept_drift": None,
+                "prediction_drift": None
+            },
+            "latency_ms": None,
+            "throughput": None,
+            "sources": sources
+        }
+
+        return evaluation
+
