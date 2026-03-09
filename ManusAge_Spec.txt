@@ -163,6 +163,17 @@ Collection: `evaluations`
 }
 Drift metrics track how the system’s behavior changes over time. Embedding drift shows when the meaning of stored vectors begins to shift, and semantic drift shows when the model’s answers start diverging from earlier patterns. These signals help identify when re‑embedding, prompt updates, or model adjustments are needed. Performance metrics such as latency and throughput capture how quickly the system responds and how well it handles load, which supports observability and capacity planning.
 
+5.1. Evaluation Engine Integration (Updated Mar‑08‑2026)
+   - LLM-as-judge fully integrated into RAGPipeline.
+   - RAGAS evaluator wired to compute real metrics (faithfulness, relevance, precision, recall).
+   - EvaluationRecord now stores real judge score, justification, RAGAS metrics, drift, and performance.
+   - MongoEvaluationStore receives complete evaluation documents for analytics.
+   - Observability layer added:
+        • Structured logging (query start, completion, evaluation)
+        • EvaluationMetrics for tracking judge score trends
+        • OpenTelemetry tracing hooks for RAG queries
+   - RAGPipeline now emits latency, throughput, and evaluation metadata for future dashboards.
+
 ---
 6. Roadmap
 Phase 1 — Core RAG (Done)

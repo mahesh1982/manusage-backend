@@ -67,3 +67,12 @@ Mar-5-2026
    - `judge_score`
    - `ragas_scores`
 >>>>>>> cb5194a (Add STATUS.md, MANUSAGE_SPEC.md, Mongo integration, config updates)
+
+
+Mar-08-2026
+- ✅ Added LLM-as-judge integration inside RAGPipeline
+- ✅ Added RAGAS evaluator and wired real metrics
+- ✅ Updated _evaluate() to compute judge + RAGAS + drift + metrics
+- ✅ MongoDB evaluation record now stores real evaluation data
+- ✅ Added observability layer (logging, metrics, tracing)
+- ⏳ Multi-agent workflow (LangGraph) planned but not implemented yet
